@@ -20,3 +20,6 @@ def webhook():
         return 'Webhook received and saved', 200
 
     return 'No data', 400
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000, host='0.0.0.0')

@@ -6,14 +6,17 @@ import json
 app = Flask(__name__)
 
 
-@app.route('/', methods=['POST'])
-def event_log():
-    data = json.loads(request.data)
-    with open("github_event", "w") as file:
-        file.write(data)
-    return 'its works'
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    webhook_data = request.get_json()
 
+    if webhook_data:
+        with open('webhook_data.json', 'w') as f:
+            json.dump(webhook_data, f, indent=4)
+        return 'Webhook received and saved', 200
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5001, host='0.0.0.0')
+    return 'No data', 400

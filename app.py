@@ -15,6 +15,13 @@ def webhook():
     webhook_data = request.get_json()
 
     if webhook_data:
+        repository_name = webhook_data.get('repository', {}).get('name', 'Unknown repository')
+        pusher_name = webhook_data.get('pusher', {}).get('name', 'Unknown pusher')
+
+        filtered_data = {
+            'repository_name': repository_name,
+            'pusher_name': pusher_name
+        }
         with open('webhook_data.json', 'w') as f:
             json.dump(webhook_data, f, indent=4)
         return 'Webhook received and saved', 200

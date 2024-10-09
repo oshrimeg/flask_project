@@ -1,5 +1,8 @@
 from flask import Flask, request
+import os
 import json
+import mysql.connector
+from dotenv import load_dotenv
 
 ##check
 
@@ -16,15 +19,34 @@ def webhook():
 
     if webhook_data:
         repository_name = webhook_data.get('repository', {}).get('name', 'Unknown repository')
-        pusher_name = webhook_data.get('pusher', {}).get('name', 'Unknown pusher')
+        commit_id = webhook_data.get('commits', {}).get('id', 'Unknown commit id')
+        changed_files = webhook_data.get('commits', {}).get('modified', 'No changed files')
 
+        # Store only the repository name and pusher name
         filtered_data = {
             'repository_name': repository_name,
-            'pusher_name': pusher_name
+            'commit_id': commit_id,
+            'changed_files': changed_files
         }
+        
         with open('webhook_data.json', 'w') as f:
-            json.dump(webhook_data, f, indent=4)
+            json.dump(filtered_data, f, indent=4)
         return 'Webhook received and saved', 200
+    
+        db = mysql.connector.connect(
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME")
+        )
+
+        cursor = db.cursor(dictionary=True)
+
+        cursor.execute("INSERT INTO contacts (repository_name, commit_id, changed_files) VALUES (%s, %s, %s)", (repository_name, commit_id, changed_files))
+        db.commit()
+        db.close()
+
+        
 
     return 'No data', 400
 

@@ -19,8 +19,8 @@ def webhook():
 
     if webhook_data:
         repository_name = webhook_data.get('repository', {}).get('name', 'Unknown repository')
-        commit_id = webhook_data['commits']['id']
-        changed_files = webhook_data['commits']['modified']
+        commit_id = webhook_data['commits'][0]
+        changed_files = webhook_data['commits'][10]
 
         # Store only the repository name and pusher name
         filtered_data = {
